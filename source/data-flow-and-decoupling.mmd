@@ -1,0 +1,56 @@
+---
+config:
+  theme: mc
+  look: classic
+---
+graph LR
+    classDef dashed stroke-dasharray:4 4
+    classDef note fill:#ffffff,stroke:#888,stroke-dasharray:4 4
+    classDef kafka  fill:#CCE5FF,stroke:#333,stroke-width:1px
+    classDef flink  fill:#FFE5CC,stroke:#333,stroke-width:1px
+    classDef ingest fill:#D4EFDF,stroke:#333,stroke-width:1px        %% light green
+    classDef sink   fill:#FCF3CF,stroke:#333,stroke-width:1px        %% light yellow
+    classDef dashed stroke-dasharray:4 4
+    classDef note   fill:#FFFFFF,stroke:#888,stroke-dasharray:4 4
+
+    %% ─── Producers ───
+    Ingest["Ingestion Adapters"] --> RawTopic["Kafka
+    (supplier.raw topic)"]
+
+    %% ─── Stream processing ───
+    RawTopic --> FlinkJob["Flink
+    (Normalise
+    Deduplicate
+    Enrich
+    Detect Anomalies)"]
+
+    %% ─── Topic fan-out ───
+    FlinkJob --> EnrichedTopic["Kafka 
+    (flights.enriched topic)"]
+    FlinkJob --> InvalidateTopic["Kafka
+    (cache.invalidate topic)"]
+
+    %% ─── Consumers of flights.enriched ───
+    EnrichedTopic --> NoSQLSink["NoSQL 
+    (Durable State)"]
+    EnrichedTopic --> IndexSink["Search Index Writer"]
+
+    %% ─── Consumer of cache.invalidate ───
+    InvalidateTopic --> Refresher["Cache Refresher 
+(DEL key in Redis)"]
+
+    %% ─── Side output for raw archive ───
+    RawTopic -.-> RawLake["S3 Raw Events Lake"]:::dashed
+
+    %% ─── Notes ───
+    NoteFlink["• Canonical schema 
+• Conflict resolution (latest-wins) 
+• Price-anomaly filter"]:::note
+    FlinkJob -.-> NoteFlink
+
+    %% ─── Apply colouring ───
+    class RawTopic,EnrichedTopic,InvalidateTopic kafka
+    class FlinkJob flink
+    class Ingest ingest
+    class NoSQLSink,IndexSink,Refresher sink
+    class RawLake dashed
