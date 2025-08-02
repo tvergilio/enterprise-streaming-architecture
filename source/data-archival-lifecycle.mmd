@@ -1,0 +1,30 @@
+---
+config:
+  theme: mc
+  look: classic
+---
+graph LR
+    classDef kafka    fill:#CCE5FF,stroke:#333,stroke-width:1px
+    classDef storage  fill:#DAE8FC,stroke:#333,stroke-width:1px      %% soft blue for storage
+    classDef etl      fill:#FFD699,stroke:#333,stroke-width:1px
+    classDef athena   fill:#D2B4DE,stroke:#333,stroke-width:1px
+    classDef bi       fill:#A9DFBF,stroke:#333,stroke-width:1px
+    classDef dashed   stroke-dasharray:4 4
+
+    Kafka[Kafka
+    supplier.raw topic] --> S3Raw
+
+    subgraph "S3 Lifecycle Archive"
+        direction TB
+        S3Raw["S3<br/>(Raw Event Archive)"]:::storage -- "Replayable" --> S3Std["Standard"]:::storage
+        S3Std -- "→ 90 days" --> S3IA["Infrequent Access"]:::storage
+        S3IA -- "→ 1 year" --> S3Glacier["Glacier Deep Archive"]:::storage
+    end
+
+    S3Raw --> ETL["ETL<br/>(e.g. AWS Glue)"]:::etl
+    ETL --> S3Curated["S3<br/>(Curated Parquet Tables)"]:::storage
+    S3Curated --> Athena["Athena"]:::athena
+    Athena --> BI["BI Tools / Analytics"]:::bi
+
+    %% Apply class styles
+    class Kafka kafka
