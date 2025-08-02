@@ -1,0 +1,38 @@
+sequenceDiagram
+    participant JM as JobManager
+    participant TM1 as TaskManager (Fails)
+    participant RM as Orchestrator (e.g., K8s)
+    participant StateBackend as Checkpoint Storage (e.g., RocksDB)
+    participant TM2 as TaskManager (New)
+
+    %% ---- Healthy State ----
+    Note over JM, TM1: System is running normally.
+    JM->>TM1: Execute tasks
+    loop Heartbeat Loop
+        TM1-->>JM: Heartbeat (I'm alive)
+    end
+    TM1->>StateBackend: Periodically write checkpoints
+
+    %% ---- Failure Event ----
+    critical TaskManager Failure
+        Note right of TM1: ❌ TM1 node crashes
+        JM-->>TM1: Heartbeat check (no response)
+        Note right of JM: Heartbeat timeout. TM1 is declared dead.
+    end
+
+    %% ---- Recovery Process ----
+    JM->>JM: Cancel tasks assigned to TM1
+    JM->>RM: Request new slot for replacement TaskManager
+    RM-->>JM: Allocate resources for TM2
+    activate TM2
+    Note over TM2: New TaskManager (TM2) starts
+    TM2-->>JM: Register with JobManager
+    JM->>TM2: Redeploy tasks
+    TM2->>StateBackend: Restore state from latest successful checkpoint
+    deactivate TM2
+
+    %% ---- Resumed State ----
+    Note over JM, TM2: Job resumes processing on the new TaskManager.
+    loop Heartbeat Loop
+        TM2-->>JM: Heartbeat (I'm alive)
+    end
