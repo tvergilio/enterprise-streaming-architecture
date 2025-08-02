@@ -1,0 +1,36 @@
+---
+config:
+  theme: mc
+  look: classic
+---
+graph LR
+    classDef kafka fill:#CCE5FF,stroke:#333,stroke-width:1px
+    classDef flink fill:#FFE5CC,stroke:#333,stroke-width:1px
+    classDef sink fill:#FCF3CF,stroke:#333,stroke-width:1px
+    classDef dashed stroke-dasharray:4 4
+    classDef note fill:#FFFBEA,stroke:#888,stroke-dasharray:4 4
+
+    %% ─── Ingest Flow ───
+    Supplier["Supplier<br/>Adapters"]:::sink --> RawKafka["Kafka<br/>(supplier.raw topic)"]:::kafka
+    RawKafka --> FlinkJob["Flink Job<br/>(Normalise, Enrich, etc.)"]:::flink
+    FlinkJob --> EnrichedKafka["Kafka<br/>(flights.enriched topic)"]:::kafka
+
+    %% ─── Retention Notes ───
+    RawNote["• Retention: 7 days<br/>• Replay for DR and reprocessing"]:::note
+    EnrichedNote["• Retention: 3 days<br/>• Replayable if downstream fails"]:::note
+
+    RawKafka -.-> RawNote
+    EnrichedKafka -.-> EnrichedNote
+
+    %% ─── Downstream (simplified) ───
+    EnrichedKafka --> DurableState["NoSQL Store<br/>(Latest Fare)"]:::sink
+    EnrichedKafka --> Indexer["Search Index Writer"]:::sink
+
+    %% ─── Dashed replay arrow ───
+    RawKafka -.-> FlinkReplay["Flink Replay Job<br/>(On-Demand)"]:::flink
+
+    %% ─── Flink Note ───
+    FlinkNote["• Checkpoints every 30 s
+    (retain last 3)<br/>• Savepoints on deploy
+    (retain 30 days)"]:::note
+    FlinkJob -.-> FlinkNote
