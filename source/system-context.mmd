@@ -1,0 +1,25 @@
+---
+config:
+  theme: mc
+  look: classic
+---
+graph TD
+    FSP["Flight Search Platform"]
+    Customers["B2C Customers
+    (Web and Mobile)"]
+    AgentsAPI["B2B Travel Agents
+    (Classic Collection)"]
+    Suppliers["Flight Supplier APIs (15+)"]
+    Booking["Internal Booking Engine"]
+    Loyalty["Partner Loyalty Programme"]
+    Customers -->|Search request| FSP
+    FSP -->|Priced results| Customers
+    AgentsAPI -->|Search request| FSP
+    FSP -->|Priced results| AgentsAPI
+    Suppliers -.->|Flight data feed| FSP
+    FSP -->|Booking request| Booking
+    Booking -->|Confirm or reject| FSP
+    FSP -->|Loyalty points query| Loyalty
+    Loyalty -->|Points response| FSP
+    classDef dashed stroke-dasharray: 4 4
+    class Suppliers dashed

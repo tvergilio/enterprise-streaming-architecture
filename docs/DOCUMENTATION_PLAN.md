@@ -1,6 +1,6 @@
 | # | Diagram or Artefact | Purpose and Rationale (links to brief) | Status | MoSCoW |
 |---|---------------------|----------------------------------------|--------|--------|
-| **1** | **System Context** | Frames the Flight Search Platform in relation to business-to-consumer and business-to-business users plus neighbouring systems (fifteen-plus supplier feeds, booking engine, loyalty integrations). Establishes boundaries and high-level data contracts. | Pending | **Must** |
+| **1** | **System Context** | Frames the Flight Search Platform in relation to business-to-consumer and business-to-business users plus neighbouring systems (fifteen-plus supplier feeds, booking engine, loyalty integrations). Establishes boundaries and high-level data contracts. | Done | **Must** |
 | **2** | **High-Level Runtime Architecture** | End-to-end data path: Ingestion → Kafka → Flink → NoSQL and Redis → API → Users. Meets the need for fresh pricing and sub-second response under fifty million daily searches. | Done | **Must** |
 | **3** | **Data Flow and Decoupling (Topic Centric)** | Kafka topics (`supplier.raw`, `flights.enriched`, `cache.invalidate`) with producers and consumers. Highlights conflict resolution, anomaly detection and cache invalidation. | Pending | **Must** |
 | **4** | **Search Request Sequence (Latency View)** | Swim-lane: User → API → Search Index → Redis hit or NoSQL miss. Annotated with p50 and p95 targets to evidence performance. | Done | **Must** |
