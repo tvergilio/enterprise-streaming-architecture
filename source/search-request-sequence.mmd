@@ -8,12 +8,17 @@ sequenceDiagram
   U->>API: search LON–ALC 7-Sep
   API->>IDX: filter • facet • rank
   IDX-->>API: [flightId-1, flightId-2]
-  loop for each flightId
-    API->>R: GET flightId-1
-    R-->>API: cache hit? (if miss)
-    API->>N: GET flightId-1
-    N-->>API: latest fare
-    API->>R: SET flightId-1 value ttl=60s
-  end
-  API-->>U: list priced results (p95 ≈ 40 ms)
 
+  loop each flightId
+    API->>R: GET flightId-x
+    alt cache hit (≈25 ms)
+      R-->>API: cached fare
+    else cache miss (≈250 ms)
+      R-->>API: miss
+      API->>N: GET flightId-x
+      N-->>API: latest fare
+      API->>R: SET flightId-x TTL 60 s
+    end
+  end
+
+  API-->>U: priced list  overall p95 ≈ 40 ms
