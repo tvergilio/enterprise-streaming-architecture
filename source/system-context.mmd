@@ -4,22 +4,43 @@ config:
   look: classic
 ---
 graph TD
-    FSP["Flight Search Platform"]
+    classDef dashed stroke-dasharray: 4 4
+    classDef focus fill:#FFF6BF,stroke:#333,stroke-width:1px
+
+    %% Central system
+    FSP["Flight Search Platform"]:::focus
+
+    %% External actors
     Customers["B2C Customers
-    (Web and Mobile)"]
+    (web and mobile)"]
     AgentsAPI["B2B Travel Agents
     (Classic Collection)"]
-    Suppliers["Flight Supplier APIs (15+)"]
+    HolidayFinder["Holiday Finder
+    (Aggregation Service)"]
+    Suppliers["Flight Supplier APIs (15+)"]:::dashed
+    Checkout["Checkout Service"]
     Booking["Internal Booking Engine"]
     Loyalty["Partner Loyalty Programme"]
-    Customers -->|Search request| FSP
+
+    %% Flight search flows
+    Customers -->|Flight-only query| FSP
     FSP -->|Priced results| Customers
-    AgentsAPI -->|Search request| FSP
+
+    AgentsAPI -->|Partner API query| FSP
     FSP -->|Priced results| AgentsAPI
+
+    HolidayFinder -->|Search request| FSP
+    FSP -->|Priced results| HolidayFinder
+
+    %% Supplier feed (async)
     Suppliers -.->|Flight data feed| FSP
-    FSP -->|Booking request| Booking
-    Booking -->|Confirm or reject| FSP
-    FSP -->|Loyalty points query| Loyalty
-    Loyalty -->|Points response| FSP
-    classDef dashed stroke-dasharray: 4 4
-    class Suppliers dashed
+
+    %% Booking flow
+    Customers -->|Book and pay| Checkout
+    Checkout -->|Booking request| Booking
+    Booking -->|Confirm or reject| Checkout
+    Checkout -->|Outcome| Customers
+
+    %% Loyalty look-up
+    FSP -->|Points query| Loyalty
+    Loyalty -->|Points reply| FSP
