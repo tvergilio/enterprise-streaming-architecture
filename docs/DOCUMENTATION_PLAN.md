@@ -7,6 +7,6 @@
 | **5** | **Deployment and Fault Tolerance** | High availability, resilience and scaling plan (replication, partition counts). Flink fail and recover mini sequence. | Done | **Must** |
 | **6** | **Data Lifecycle and Governance** | Raw Kafka events archived to S3 with lifecycle policy (Standard → Infrequent Access → Glacier) and curated Parquet for Athena. Covers regulatory retention and replay capability. | Done | **Should** |
 | **7** | **Non-Functional Requirements Matrix** | Table mapping availability, latency, throughput, retention and cost targets to design elements and validation methods. | Done | **Should** |
-| **8** | **Trade-Off Comparison Table** | Two-column table: hybrid real-time versus serverless batch plus cache, assessed on latency, operational effort, cost and risk. Provides design reasoning for stakeholders. | Pending | **Should** |
+| **8** | **Trade-Off Comparison Table** | Two-column table: hybrid real-time versus serverless batch plus cache, assessed on latency, operational effort, cost and risk. Provides design reasoning for stakeholders. | In progress | **Should** |
 | **9** | **Flink Job Data Flow (Mini DAG)** | Zoom-in on enrichment pipeline: raw topic → normalise → deduplicate → enrich → upsert NoSQL then emit `cache.invalidate`. Demonstrates rule extensibility and exactly-once semantics. | Pending | **Could** |
 | **10** | **Capability Map (Enterprise View)** | Business capabilities → application services → technology blocks. Useful for governance reviews; optional if time is limited. | Pending | **Could** |
