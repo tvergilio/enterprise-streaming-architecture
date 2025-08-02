@@ -1,0 +1,30 @@
+---
+config:
+  look: classic
+---
+graph TD
+  Suppliers["Flight Supplier APIs (15+)"] --> Ingest[Ingestion Adapters]
+  Ingest --> Kafka[Kafka 
+  supplier.raw topic]
+  Kafka --> Flink[Flink
+  Rules and Enrichment]
+  Flink --> NoSQL[NoSQL Persistence]
+  Flink --> CacheTopic[Kafka 
+  cache.invalidate topic]
+  CacheTopic --> Refresher[Cache Refresher]
+  Refresher --> RedisHot[Redis Hot Cache]
+  RedisPolicy["TTL 60 s
+allkeys-lfu eviction
+≈ 2 GB RAM"]:::note
+  RedisHot -.-> RedisPolicy
+  Flink --> SearchIdx[Search Index
+  ES / OpenSearch]
+  Users[Users and Applications] --> API[API Orchestrator]
+  API --> SearchIdx
+  API -->|hit| RedisHot
+  API -->|miss| NoSQL
+  Flink -.-> OpsTopic[Operational Flight Events]
+  Kafka -.-> Lake[S3 Audit Lake]
+  classDef dashed stroke-dasharray:4 4
+  classDef note fill:#ffffff,stroke:#888,stroke-dasharray:4 4
+  class OpsTopic,Lake dashed
