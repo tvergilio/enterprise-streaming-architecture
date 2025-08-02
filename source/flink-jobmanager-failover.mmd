@@ -1,0 +1,29 @@
+sequenceDiagram
+    participant TM as TaskManager
+    participant JM1 as JobManager (Primary)
+    participant JM2 as JobManager (Replica)
+    participant ZK as ZooKeeper
+
+    %% Healthy State
+    Note over TM, ZK: System is healthy
+    TM->>JM1: Heartbeat / Status Update
+    JM1-->>TM: Acknowledged
+
+    %% Failure Event
+    critical Flink JobManager Failure
+        Note right of JM1: ❌ JM1 crashes or becomes unresponsive
+        TM->>JM1: Heartbeat (no response)
+        ZK->>JM1: Health check (no response)
+        Note right of ZK: Session timeout, JM1 is presumed dead
+    
+        %% Recovery Process
+        ZK->>JM2: Trigger leader election
+        JM2->>ZK: Elected as new leader
+        Note over JM2: JM2 is now Primary
+        JM2->>TM: Restore job from last checkpoint
+    end
+
+    %% Resumed State
+    Note over TM, ZK: System is recovered and operational
+    TM->>JM2: Heartbeat / Status Update
+    JM2-->>TM: Acknowledged
