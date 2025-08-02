@@ -1,0 +1,32 @@
+---
+config:
+  theme: mc
+  look: classic
+---
+graph TD
+    classDef hot fill:#CCE5FF,stroke:#333,stroke-width:1px
+    classDef warm fill:#FCF3CF,stroke:#333,stroke-width:1px
+    classDef delete fill:#F8D7DA,stroke:#333,stroke-width:1px
+    classDef note fill:#FFFBEA,stroke:#888,stroke-dasharray:4 4
+
+    %% ─── Alias Layer ───
+    IndexAlias["flights-active (Index Aliases)<br/>• Write Alias → latest index<br/>• Read Alias → N recent indices"]:::hot
+
+    %% ─── Hot Indices ───
+    IndexAlias --> Index1["flights-full-2025.08.01"]:::hot
+    IndexAlias --> Index2["flights-full-2025.08.02"]:::hot
+    IndexAlias --> Index3["flights-full-2025.08.03"]:::hot
+
+    %% ─── Transition to Warm ───
+    Index1 --> Warm1["Warm Phase"]:::warm
+    Warm1 --> Delete1["Delete after 7 days"]:::delete
+
+    Index2 --> Warm2["Warm Phase"]:::warm
+    Warm2 --> Delete2["Delete after 7 days"]:::delete
+
+    %% ─── Notes ───
+    Note1["• Each index holds full dataset
+    • Rollover daily or at 30GB
+    • Read alias tolerates faults (e.g. reindexing, failures)
+    • Index Lifecyle Management: hot → warm → delete"]:::note
+    IndexAlias -.-> Note1
