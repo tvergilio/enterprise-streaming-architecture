@@ -1,8 +1,43 @@
-# High‑Availability and Scaling Plan
+# High Availability and Scaling Plan
 
-> **Assumption**
-> The platform is deployed in a mainstream public‑cloud environment that offers managed or self‑hosted options for distributed data stores, container orchestration and object storage.
-> Exact vendor choices (AWS, GCP, Azure, on‑prem Kubernetes, and similar) can be selected to meet cost, skill‑set and regulatory constraints.
+## Document Metadata
+- **Document Type**: Infrastructure Architecture Specification
+- **Version**: 1.0
+- **Author**: T. Vergilio
+- **Context**: OTB Take-Home Exercise
+- **Review Date**: 3 February 2026
+
+## Executive Summary
+
+This document defines the high availability, disaster recovery, and scaling strategies for the flight search platform. The design targets 99.9%+ uptime whilst supporting elastic scaling from baseline operations to peak holiday traffic surges, aligned with business continuity requirements and cost optimisation objectives.
+
+## Business Context
+
+### Availability Requirements
+- **Revenue Impact**: Platform outages estimated at £100k/hour during peak booking periods
+- **Customer Experience**: Sub-40ms response times must be maintained during failure scenarios
+- **Regulatory Compliance**: ATOL requirements mandate audit trail preservation during incidents
+- **Market Competition**: High availability as competitive differentiator in travel search market
+
+### Scaling Drivers  
+- **Traffic Patterns**: 50+ million searches daily with 10x peak surge during holiday booking windows
+- **Geographic Expansion**: Multi-region deployment supporting European market growth
+- **Supplier Growth**: Architecture must accommodate rapid integration of new travel providers
+- **Cost Efficiency**: Infrastructure costs must scale proportionally with business volume
+
+## Architecture Principles
+
+1. **No Single Points of Failure**: All critical components deployed across multiple availability zones
+2. **Graceful Degradation**: Service continues with reduced functionality during partial outages
+3. **Elastic Scaling**: Auto-scaling based on demand patterns with cost optimisation
+4. **Data Consistency**: Strong consistency for financial data, eventual consistency acceptable for search
+5. **Recovery Automation**: Automated failover and recovery with minimal manual intervention
+
+## Technical Architecture
+
+> **Deployment Assumption**
+> The platform is deployed in a mainstream public cloud environment that offers managed or self-hosted options for distributed data stores, container orchestration and object storage.
+> Exact vendor choices (AWS, GCP, Azure, on-prem Kubernetes) can be selected to meet cost, skillset and regulatory constraints.
 
 | Tier / Service                                          | Deployment and Scale (per active region)                                                                                                                                        | Replication and Failover                                                                                       | Back‑of‑Envelope Rationale                                                                                                                                  |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,4 +54,56 @@
 | **Pilot‑light Disaster Recovery Region**                | Asynchronous log replication, global DB replica, read‑only Redis shard, index snapshot, idle Flink JM.                                                                          | Recovery Point Objective < 5 s; Recovery Time Objective ≈ 15 min with IaC‑based restart.                       | Meets spec risk assumption of £100 k/hr outage. Annual disaster recovery drills. Promoted if primary region down > 5 min.                                   |
 | **Data Lifecycle and Governance**                       | Raw Kafka events streamed to object storage (e.g. S3). Lifecycle: Standard → Infrequent Access → Glacier. Athena queries over curated Parquet. | Regionally replicated. Raw events retained for replay. Curated tables support analytics and audits. | 1-year retention meets regulatory needs. Replay enables price anomaly investigation and recovery scenarios. |
 
+## Risk Assessment and Mitigation
+
+### High-Impact Risks
+- **Multi-AZ Failure**: Primary region unavailable for >5 minutes
+  - **Mitigation**: Pilot-light disaster recovery region with 15-minute RTO
+  - **Business Impact**: Managed through automated failover and customer communication
+  
+- **Data Loss During Processing**: Stream processing failures causing financial discrepancies  
+  - **Mitigation**: At-least-once processing with idempotent writes, 30-second checkpointing
+  - **Business Impact**: Prevented through exactly-once semantics and audit trail preservation
+
+- **Cache Poisoning**: Stale pricing data served to customers
+  - **Mitigation**: 60-second TTL with LFU eviction, cache invalidation events
+  - **Business Impact**: Revenue protection through real-time cache coherence
+
+### Operational Excellence
+- **Monitoring**: Comprehensive observability across all tiers with automated alerting
+- **Testing**: Quarterly disaster recovery drills and chaos engineering practices  
+- **Documentation**: Runbooks for common failure scenarios and escalation procedures
+- **Skills Development**: Cross-training on critical system components and recovery procedures
+
+## Success Metrics
+
+### Availability Targets
+- **System Uptime**: 99.9%+ (≤ 8.77 hours downtime annually)
+- **Recovery Time Objective**: 15 minutes for complete region failure
+- **Recovery Point Objective**: <5 seconds data loss maximum
+- **Degraded Service**: Maintain 70% capacity during single AZ failure
+
+### Performance Under Load
+- **Search Latency**: P95 ≤ 40ms during 3,000+ QPS peak traffic
+- **Data Freshness**: Supplier updates searchable within 1 second
+- **Cache Hit Ratio**: 70%+ for pricing lookups during normal operations
+- **Consumer Lag**: Kafka processing lag maintained <5 seconds at P95
+
+## Governance and Review
+
+### Operational Reviews
+- **Daily**: Infrastructure health checks and capacity planning
+- **Weekly**: Performance metrics review and cost optimisation assessment  
+- **Monthly**: Disaster recovery preparedness and runbook updates
+- **Quarterly**: Full disaster recovery drill and architecture evolution planning
+
+### Decision Review Triggers
+- **Availability SLA Breaches**: Systematic review of incident causes and architecture improvements
+- **Cost Variance**: Infrastructure spend >20% above budget triggers optimisation review
+- **Technology Evolution**: Major cloud provider feature releases enabling improved resilience
+- **Business Growth**: Traffic patterns exceeding current capacity planning assumptions
+
 ---
+
+**Document History:**
+- v1.0 (3 August 2025): Initial high availability specification 
