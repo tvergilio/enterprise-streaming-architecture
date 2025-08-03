@@ -1,0 +1,22 @@
+---
+config:
+  theme: redux
+---
+flowchart LR
+    subgraph Ingestion
+        A[A. Batch File<br/>or Stream]
+    end
+    subgraph Processing
+        B["Batch Scheduler"]
+        C["Serverless Function"]
+    end
+    subgraph Caching
+        D["Cache Store"]
+    end
+    subgraph Search
+        E[Search API]
+    end
+    B --> C
+    A --> C
+    C --> D
+    D --> E
