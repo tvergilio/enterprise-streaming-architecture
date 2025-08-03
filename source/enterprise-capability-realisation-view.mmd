@@ -1,0 +1,60 @@
+---
+config:
+  theme: default
+---
+flowchart TB
+  %% Business Capabilities (TOGAF: Business Architecture)
+  subgraph Business_Capabilities[ ]
+    direction TB
+    A1[Customer & Finance]:::grey
+    A2[Shop]:::grey
+    A3["Inventory (Data Insight)"]:::primary
+  end
+
+  %% Application Services (TOGAF: Application Architecture)
+  subgraph Application_Services[ ]
+    direction TB
+    B1[Account Management Service]:::grey
+    B2[Booking UI / Shop Frontend]:::grey
+    B3[Cache API]:::primary
+    B4[Search Aggregator]:::primary
+    B5[Data Normaliser + Deduplicator]:::primary
+    B6[Fare Enrichment Service]:::primary
+    B7[Variant Management / Segmentation Engine]:::primary
+  end
+
+  %% Technology Enablers (TOGAF: Technology Architecture)
+  subgraph Technology_Enablers[ ]
+    direction TB
+    C1[OpenSearch]:::infra
+    C2[Kafka]:::infra
+    C3[Flink]:::infra
+    C4[Redis]:::infra
+    C5[AWS Lambda + API Gateway]:::grey
+    C6[DynamoDB]:::infra
+  end
+
+  %% Mappings
+  A1 --> B1
+  A2 --> B2
+  A3 --> B3
+  A3 --> B4
+  A3 --> B5
+  A3 --> B6
+  A3 --> B7
+
+  B3 --> C4
+  B4 --> C2
+  B4 --> C1
+  B5 --> C2
+  B5 --> C3
+  B6 --> C3
+  B7 --> C6
+
+  B2 --> C5
+  B1 --> C6
+
+  %% Styling
+  classDef primary fill:#3498db,color:#fff,stroke:#21618c;
+  classDef grey fill:#ecf0f1,color:#555;
+  classDef infra fill:#27ae60,color:#fff,stroke:#1e8449;
