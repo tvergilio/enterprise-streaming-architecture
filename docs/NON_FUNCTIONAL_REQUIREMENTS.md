@@ -1,5 +1,29 @@
 # Non-Functional Requirements
 
+## Document Metadata
+- **Document Type**: Non-Functional Requirements Specification
+- **Version**: 1.0
+- **Author**: T. Vergilio
+- **Context**: OTB Take-Home Exercise
+- **Review Date**: 4 August 2025
+
+## Executive Summary
+
+This document defines the non-functional requirements for the flight search platform, establishing measurable quality attributes that support business objectives. These requirements ensure the platform delivers competitive performance, maintains operational resilience, and scales efficiently with business growth.
+
+## Business Context
+
+The non-functional requirements directly support OTB's strategic business objectives:
+
+- **Revenue Protection**: High availability and data accuracy prevent booking failures and maintain customer trust
+- **Competitive Advantage**: Sub-40ms response times and real-time data freshness differentiate against slower competitors
+- **Operational Efficiency**: Cost-effective scaling and maintainability support sustainable business growth
+- **Regulatory Compliance**: Security and audit capabilities meet ATOL and data protection requirements
+
+## Requirements Traceability
+
+All requirements trace back to business drivers and technical constraints identified in the design brief. Each requirement includes validation methods to ensure measurable achievement of quality targets.
+
 ## Reliability and Performance
 
 <table style="border-collapse: collapse; width: 100%;">
@@ -183,3 +207,27 @@
 </table>
 
 ¹ For future hyper-personalisation, the platform could integrate OpenSearch with OpenAI using Retrieval-Augmented Generation (RAG), enabling dynamic content generation based on user context and preferences. This would support advanced features like personalised fare suggestions, loyalty programme prompts, and tailored travel packages. While not required in the current scope, this platform allows evolution toward hyper-personalisation using RAG.
+
+---
+
+## Requirements Governance
+
+### Review and Validation
+- **Performance Testing**: Load testing campaigns validate throughput and latency requirements under peak conditions
+- **Chaos Engineering**: Regular failure injection tests verify availability and recovery requirements
+- **Business Metrics**: Continuous monitoring ensures requirements align with evolving business objectives
+
+### Change Management
+- **Impact Assessment**: Changes to non-functional requirements trigger architecture impact analysis
+- **Stakeholder Approval**: Performance target modifications require business stakeholder sign-off
+- **Version Control**: All requirement changes tracked with rationale and approval authority
+
+### Success Criteria
+- **Technical Compliance**: All measurable targets achieved within specified tolerances
+- **Business Value**: Requirements demonstrably support revenue protection and competitive positioning
+- **Operational Readiness**: Validation methods successfully integrated into operational processes
+
+---
+
+**Document History:**
+- v1.0 (3 August 2025): Initial NFR specification 
