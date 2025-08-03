@@ -130,7 +130,7 @@ The system architecture prioritises real-time data freshness over operational si
 
 - **Future Readiness**: The event-driven design supports rapid expansion enabled by transformational partnerships like Ryanair, which doubled the Total Addressable Market through city breaks and new geographies. The architecture enables quick integration of new suppliers and product verticals without fundamental platform changes.
 
-For detailed architectural trade-offs and alternative approaches considered, see the [Architecture Decision Record](docs/ARCHITECTURE_DECISION.md).
+For detailed architectural trade-offs and alternative approaches considered, see the [Architecture Decision Record](docs/ADR-001-Data-Processing-Architecture.md).
 
 ## Documentation Structure
 
