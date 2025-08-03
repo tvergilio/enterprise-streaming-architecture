@@ -132,12 +132,12 @@ The system architecture prioritises real-time data freshness over operational si
 
 For detailed architectural trade-offs and alternative approaches considered, see the [Architecture Decision Record](docs/ARCHITECTURE_DECISION.md).
 
-## Documentation
+## Documentation Structure
 
-- **[Project Plan](docs/PLAN.md)**: Development phases and deliverables
-- **[Architecture Decisions](docs/ARCHITECTURE_DECISION.md)**: Technical choices and trade-offs
-- **[High Availability Plan](docs/HIGH_AVAILABILITY_PLAN.md)**: Resilience and scaling strategy  
-- **[Non-Functional Requirements](docs/NON_FUNCTIONAL_REQUIREMENTS.md)**: Performance targets and validation methods
+- **[Project Plan](docs/PLAN.md)**: Implementation roadmap and technical milestones
+- **[Architecture Decision](docs/ADR-001-Data-Processing-Architecture.md)**: TOGAF-compliant ADR for streaming vs batch processing evaluation
+- **[High Availability](docs/HIGH_AVAILABILITY_PLAN.md)**: Disaster recovery and fault tolerance strategies
+- **[Non-Functional Requirements](docs/NON_FUNCTIONAL_REQUIREMENTS.md)**: Performance, scalability, and compliance specifications
 
 ## Design Principles
 
