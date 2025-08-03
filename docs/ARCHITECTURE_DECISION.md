@@ -1,11 +1,49 @@
-# Architecture Trade-off Analysis
+# Architecture Decision: S- **Search API:** API that reads from the search index to serve users
 
-Before choosing a final architecture, two core options were evaluated:
+### Serverless Batch Architecture (Alternative)
 
-* Hybrid Real-Time (Streaming): Uses continuous ingestion with Kafka and Flink to keep data fresh and indexed within seconds. Prioritises accuracy and availability at the cost of increased operational complexity.
+Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief's core goals.aming vs Batch Processing
 
-* Serverless Batch + Cache: Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief’s core goals.
+## Overview
 
+This document evaluates two core architectural approaches for the flight search platform and provides the rationale for the chosen solution.
+
+## Architecture Options Evaluated
+
+### 1. Hybrid Real-Time (Streaming) - **CHOSEN**
+Uses continuous ingestion with Kafka and Flink to keep data fresh and indexed within seconds. Prioritises accuracy and availability at the cost of increased operational complexity.
+
+### 2. Serverless Batch + Cache - **REJECTED**
+Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief's core goals.
+
+## Architecture Diagrams
+
+### Streaming Architecture (Chosen Solution)
+
+Uses continuous ingestion with Kafka and Flink to keep data fresh and indexed within seconds. Prioritises accuracy and availability at the cost of increased operational complexity.
+
+![Streaming Architecture](../images/streaming-architecture.svg)
+
+**Architecture Components:**
+- **Real-Time Stream:** Continuous data stream from providers (e.g., airline pricing)
+- **Stream Processor:** Stateful stream processing engine (e.g., Apache Flink) that normalises, deduplicates, enriches and emits data
+- **Search Index:** Search index (e.g., Elasticsearch) that is updated in real-time
+- **Search API:** API that reads from the search index to serve users
+
+### Serverless Batch Architecture (Rejected Solution)
+
+Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief’s core goals.
+
+![Serverless Batch Architecture](../images/serverless-batch-architecture.svg)
+
+**Architecture Components:**
+- **Batch File or Stream:** Incoming data (e.g., airline pricing)
+- **Batch Scheduler:** Scheduler (e.g., cron, EventBridge) that triggers processing
+- **Serverless Function:** Serverless compute (e.g., AWS Lambda) that parses and updates the cache
+- **Cache Store:** Cache store used by the platform (e.g., Redis, DynamoDB)
+- **Search API:** API that reads from the cache to serve users
+
+## Comparative Analysis
 
 | Criteria | Hybrid Real-Time (Streaming) | Serverless Batch + Cache |
 |----------|------------------------------|---------------------------|

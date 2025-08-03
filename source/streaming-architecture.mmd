@@ -1,0 +1,20 @@
+---
+config:
+  theme: redux
+---
+flowchart LR
+    subgraph Ingestion
+        A[Real-Time Stream]
+    end
+    subgraph Processing
+        B[Stream Processor]
+    end
+    subgraph Indexing
+        C[Search Index]
+    end
+    subgraph Search
+        D[Search API]
+    end
+    A --> B
+    B --> C
+    D --> C
