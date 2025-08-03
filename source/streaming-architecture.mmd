@@ -3,18 +3,23 @@ config:
   theme: redux
 ---
 flowchart LR
-    subgraph Ingestion
-        A[Real-Time Stream]
-    end
-    subgraph Processing
-        B[Stream Processor]
-    end
-    subgraph Indexing
-        C[Search Index]
-    end
-    subgraph Search
-        D[Search API]
-    end
-    A --> B
-    B --> C
-    D --> C
+  subgraph Ingestion["Ingestion"]
+      A["Batch File</br>or Stream"]
+  end
+  subgraph Processing["Processing"]
+      B["Stream Processor"]
+  end
+  subgraph Indexing["Indexing"]
+      C["Search Index"]
+  end
+  subgraph Search["Search"]
+      D["Search API"]
+  end
+  subgraph Pricing["Pricing"]
+      E["Pricing Cache"]
+  end
+
+  A --> B
+  B --> C
+  D --> C
+  D --> E

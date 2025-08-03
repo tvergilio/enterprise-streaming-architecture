@@ -1,8 +1,8 @@
-# Architecture Decision: S- **Search API:** API that reads from the search index to serve users
+# Architecture Decision: Streaming vs Batch Processing
 
 ### Serverless Batch Architecture (Alternative)
 
-Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief's core goals.aming vs Batch Processing
+Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief's core goals.
 
 ## Overview
 
@@ -30,6 +30,9 @@ Uses continuous ingestion with Kafka and Flink to keep data fresh and indexed wi
 - **Search Index:** Search index (e.g., Elasticsearch) that is updated in real-time
 - **Search API:** API that reads from the search index to serve users
 
+Note: Pricing data is handled separately from the core document indexing path. After deduplication and enrichment, final prices are written to a dedicated key-value store (e.g., Redis) optimised for fast lookup. The search index stores structural flight data (e.g., routes, times), while pricing is injected at query time based on dynamic filters and availability windows.
+
+
 ### Serverless Batch Architecture (Rejected Solution)
 
 Uses scheduled jobs to process provider files and populate a cache periodically. Simpler to operate and cheaper at low volume, but introduces data staleness and cache consistency issues that conflict with the brief’s core goals.
@@ -42,6 +45,8 @@ Uses scheduled jobs to process provider files and populate a cache periodically.
 - **Serverless Function:** Serverless compute (e.g., AWS Lambda) that parses and updates the cache
 - **Cache Store:** Cache store used by the platform (e.g., Redis, DynamoDB)
 - **Search API:** API that reads from the cache to serve users
+
+Note: This architecture could optionally push deltas into OpenSearch instead of, or in addition to, a cache. However, supporting partial updates reliably requires careful handling of versioning, merge logic, and consistency between batched deltas and indexed documents. Unlike real-time systems, batch workflows often lack fine-grained visibility into out-of-order or conflicting updates, increasing the risk of stale or inconsistent results in the search index.
 
 ## Comparative Analysis
 
