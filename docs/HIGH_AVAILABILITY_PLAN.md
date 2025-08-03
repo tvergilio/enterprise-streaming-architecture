@@ -92,7 +92,7 @@ This document defines the high availability, disaster recovery, and scaling stra
 ### Performance Under Load
 - **Search Latency**: P95 ≤ 40ms during 3,000+ QPS peak traffic
 - **Data Freshness**: Supplier updates searchable within 1 second
-- **Cache Hit Ratio**: 70%+ for pricing lookups during normal operations
+- **Cache Hit Ratio**: 85%+ for pricing lookups during normal operations
 - **Stream Lag**: Kafka processing lag maintained <5 seconds at P95
 
 ## Governance and Review

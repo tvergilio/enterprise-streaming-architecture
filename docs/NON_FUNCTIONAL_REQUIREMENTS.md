@@ -62,7 +62,7 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Read Throughput (Search)</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">API must handle ~3,000 QPS at peak traffic</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - API Runtime Pods auto-scaling configuration</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: API Runtime Pods</a></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Load tests simulating peak traffic patterns per <a href="HIGH_AVAILABILITY_PLAN.md#performance-under-load">HA Plan metrics</a></td>
 </tr>
 <tr>
@@ -115,7 +115,7 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Index Freshness</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">≤ 1 s delay between ingestion and searchability</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Design Target</td>
-<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Search Index refresh_interval configuration</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Search Index  configuration</a></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Track p95 ingestion-to-query delta</td>
 </tr>
 <tr>
@@ -161,14 +161,14 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Maintainability</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">System must support onboarding new supplier feeds quickly</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Ingestion Adapters</a> with connector isolation and schema registry</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Ingestion Adapters</a></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Time-to-integrate new feed; error rate during first sync</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Cost Efficiency</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Minimise cloud spend through dynamic scaling and optimal pricing models</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Auto-scaling configurations</a> across all compute tiers</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> across all compute tiers</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Track cost-per-search metrics; automated budget alerts</td>
 </tr>
 </tbody>
