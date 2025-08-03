@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This document defines the high availability, disaster recovery, and scaling strategies for the flight search platform. The design targets 99.9%+ uptime whilst supporting elastic scaling from baseline operations to peak holiday traffic surges, aligned with business continuity requirements and cost optimisation objectives.
+This document defines the high availability, disaster recovery, and scaling strategies for the flight search platform. The design targets 99.9%+ uptime (≤ 8.77 h/year) whilst supporting elastic scaling from baseline operations to peak holiday traffic surges, aligned with business continuity requirements and cost optimisation objectives.
 
 ## Business Context
 
@@ -30,7 +30,7 @@ This document defines the high availability, disaster recovery, and scaling stra
 1. **No Single Points of Failure**: All critical components deployed across multiple availability zones
 2. **Graceful Degradation**: Service continues with reduced functionality during partial outages
 3. **Elastic Scaling**: Auto-scaling based on demand patterns with cost optimisation
-4. **Data Consistency**: Strong consistency for financial data, eventual consistency acceptable for search
+4. **Data Consistency**: Strong consistency for financial data, eventual (≤ 1 s) consistency acceptable for search index
 5. **Recovery Automation**: Automated failover and recovery with minimal manual intervention
 
 ## Technical Architecture
@@ -44,15 +44,21 @@ This document defines the high availability, disaster recovery, and scaling stra
 | **Kafka (distributed log)**                             | 3 brokers, one per Availability Zone; baseline 24 vCPU each; topic partitions sized to peak ingest (e.g. 24 for `supplier.raw`).                                                | Replication factor 3, minimum in‑sync replicas 2. Broker or AZ failure triggers automatic leader re‑election.  | Based on 40 million searches/day and 10,000 msg/s supplier feed. Designed with 100 % headroom for peak. Enables Flink's end‑to‑end exactly‑once processing. |
 | **Flink JobManager (HA)**                               | 3 replicas (one per AZ) managed by orchestrator.                                                                                                                                | Leader election < 5 s. Checkpoint to object storage every 30 s; savepoints before deployment or schema change. | Recovery objective < 30 s. Savepoints are durable snapshots used for controlled updates and operational recoverability.                                     |
 | **Flink TaskManagers**                                  | Autoscaled: baseline 3 workers per AZ, peaks to 10+ at holiday surge; each worker 4 vCPU and 16 GB RAM.                                                                         | Stateless; restarted on failure. Remaining TaskManagers resume work from latest checkpoint.                    | Kafka consumer lag maintained < 5 s at p95 throughput. Core stream transforms: normalise, enrich, deduplicate, anomaly detection.                           |
-| **In‑memory Hot Cache (Redis)**                         | 1 primary in AZ‑a plus 2 replicas in AZ‑b and AZ‑c (cluster mode).                                                                                                              | Automatic promotion ≈ 10 s; client retries on failure.                                                         | Meets brief targets: 70 % hit ratio; p50 latency 25 ms; p95 40 ms. TTL 60 s, LFU eviction, \~2 GB per shard.                                                |
+| **In‑memory Hot Cache (Redis)**                         | 1 primary in AZ‑a plus 2 replicas in AZ‑b and AZ‑c (cluster mode).                                                                                                              | Automatic promotion ≈ 10 s; client retries on failure.                                                         | Meets brief targets: 70 % hit ratio. TTL 60 s, LFU eviction, \~2 GB per shard.                                                |
 | **Search Index (ElasticSearch, OpenSearch or similar)** | 3 data nodes (one per AZ). Optional 3 dedicated masters.                                                                                                                        | 1 replica per shard; cluster remains green on AZ failure.                                                      | Brief states document search must support ranking and faceting. Newly indexed documents searchable within 1 s (refresh interval). No fares indexed.         |
-| **Durable State Store (NoSQL)**                         | Distributed key‑value or document store (e.g. DynamoDB deployed across 3 AZs or self-hosted MongoDB). Tuned for fast lookups and optional strong consistency on critical paths. | Synchronous replication across AZs. Tunable consistency. Automatic failover.                                   | Optimised for cache miss fallback. Meets brief: p95 latency 250 ms. Supports price lookups keyed by flight ID.                                              |
+| **Durable State Store (NoSQL)**                         | Distributed key‑value or document store (e.g. DynamoDB deployed across 3 AZs or self-hosted MongoDB). Tuned for fast lookups and optional strong consistency on critical paths. | Synchronous replication across AZs. Tunable consistency. Automatic failover.                                   | Optimised for cache miss fallback. Meets brief: p95 latency ≤ 250 ms on cache-miss path. Supports price lookups keyed by flight ID.                                              |
 | **API Runtime Pods**                                    | Stateless containers. 8 replicas per AZ during peak periods.                                                                                                                    | Kubernetes restarts failed pods; load balancer excludes unhealthy instances.                                   | Aggregates index and pricing for result set. Meets brief: p95 search latency 40 ms.                                                                         |
 | **Ingestion Adapters**                                  | One per AZ minimum; autoscaled based on Kafka lag.                                                                                                                              | Autoscaler monitors Kafka lag and launches or restarts ingestion tasks as needed.                              | Handles 15 suppliers. Canonical JSON conversion. Target ingest lag < 30 s.                                                                                  |
 | **Flink Checkpoints (State Backend)**                   | Key-value storage (RocksDB). ≈ 50 MB per checkpoint every 30 s.                                                                                                                 | Atomic write and restore. Restart resumes from latest checkpoint.                                              | Durable state for exactly-once semantics and operator recovery.                                                                                             |
 | **Raw Events Lake (Audit Trail)**                       | Object storage (e.g. S3) for raw ingest via Kafka or Flink side output. ≈ 8 GB/day.                                                                                             | Regionally replicated. Disaster recovery via cross‑region sync.                                                | 1-year retention for audit, compliance, and replay.                                                                                                         |
 | **Pilot‑light Disaster Recovery Region**                | Asynchronous log replication, global DB replica, read‑only Redis shard, index snapshot, idle Flink JM.                                                                          | Recovery Point Objective < 5 s; Recovery Time Objective ≈ 15 min with IaC‑based restart.                       | Meets spec risk assumption of £100 k/hr outage. Annual disaster recovery drills. Promoted if primary region down > 5 min.                                   |
 | **Data Lifecycle and Governance**                       | Raw Kafka events streamed to object storage (e.g. S3). Lifecycle: Standard → Infrequent Access → Glacier. Athena queries over curated Parquet. | Regionally replicated. Raw events retained for replay. Curated tables support analytics and audits. | 1-year retention meets regulatory needs. Replay enables price anomaly investigation and recovery scenarios. |
+
+### Infrastructure Best Practices
+
+- **Immutable Infrastructure**: All stateful tiers are recreated via IaC (Terraform/Pulumi), further reducing recovery RTO through consistent, repeatable deployments.
+
+- **Readiness / Liveness Probes**: Kubernetes probes enforce "fail fast" policies on API Runtime Pods and Ingestion Adapters, ensuring unhealthy instances are quickly removed from load balancer rotation.
 
 ## Risk Assessment and Mitigation
 
@@ -87,7 +93,7 @@ This document defines the high availability, disaster recovery, and scaling stra
 - **Search Latency**: P95 ≤ 40ms during 3,000+ QPS peak traffic
 - **Data Freshness**: Supplier updates searchable within 1 second
 - **Cache Hit Ratio**: 70%+ for pricing lookups during normal operations
-- **Consumer Lag**: Kafka processing lag maintained <5 seconds at P95
+- **Stream Lag**: Kafka processing lag maintained <5 seconds at P95
 
 ## Governance and Review
 
@@ -95,7 +101,7 @@ This document defines the high availability, disaster recovery, and scaling stra
 - **Daily**: Infrastructure health checks and capacity planning
 - **Weekly**: Performance metrics review and cost optimisation assessment  
 - **Monthly**: Disaster recovery preparedness and runbook updates
-- **Quarterly**: Full disaster recovery drill and architecture evolution planning
+- **Quarterly**: Full disaster recovery drill and architecture evolution planning. Update capacity model against latest peak traffic data.
 
 ### Decision Review Triggers
 - **Availability SLA Breaches**: Systematic review of incident causes and architecture improvements
