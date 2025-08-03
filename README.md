@@ -148,6 +148,16 @@ For detailed architectural trade-offs and alternative approaches considered, see
 5. **Operational Transparency**: Full observability across the data pipeline enables proactive issue resolution and continuous optimisation
 6. **Regulatory Compliance**: Built-in audit trails and data governance support ATOL requirements and financial regulations
 
+## Future AI Integration Opportunities
+
+The current OpenSearch implementation provides a strong foundation for AI-enhanced search capabilities:
+
+**Natural Language Query Processing**: Migration to **Azure AI Search** (Lucene-based) would enable plain English query interpretation, allowing users to search with phrases like "cheap flights to Spain next weekend" rather than structured filters. Because both OpenSearch and Azure AI Search share a Lucene core, this transition would involve minimal schema and index transformation.
+
+**Intelligent Data Extraction**: **Azure AI Search's cognitive skills** could process unstructured supplier data including handwritten pricing notes, scanned pricing sheets and multilingual content from international agents. This supports ingestion of real-world pricing inputs that do not conform to standard digital formats.
+
+**Alternative: AWS Kendra** while AWS Kendra also supports natural language search and Q&A capabilities, its proprietary indexing model would require more substantial re-architecture. Given the existing OpenSearch foundation, Azure AI Search presents a more natural evolution path.
+
 ---
 
 **This architecture transforms On The Beach's asset-light business model into a technological competitive advantage, enabling real-time pricing accuracy and rapid market expansion whilst maintaining the operational resilience that proved crucial during the industry's most challenging period.**
