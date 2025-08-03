@@ -101,7 +101,7 @@ Raw events from Kafka are continuously archived to S3 for long-term retention an
 ### Streaming Data Retention
 ![Data Streaming Lifecycle](images/data-streaming-lifecycle.svg)
 
-The streaming pipeline maintains different retention policies optimised for operational needs: raw Kafka topics retain data for 7 days enabling replay and disaster recovery, whilst enriched topics retain data for 3 days supporting downstream consumer recovery. Flink maintains checkpoints and savepoints to ensure exactly-once processing guarantees.
+The streaming pipeline maintains different retention policies optimised for operational needs: raw Kafka topics retain data for 7 days enabling replay and disaster recovery, whilst enriched topics retain data for 3 days supporting downstream consumer recovery. The longer retention on raw data provides sufficient time for complex failure scenarios and manual investigation, whilst shorter retention on processed data reduces storage costs since enriched records can be regenerated from raw sources. Flink maintains checkpoints and savepoints to ensure exactly-once processing guarantees.
 
 ### Search Index Management
 ![Data Search Index Lifecycle](images/data-search-index-lifecycle.svg)
