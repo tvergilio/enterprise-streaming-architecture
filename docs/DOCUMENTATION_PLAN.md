@@ -9,4 +9,4 @@
 | **7** | **Non-Functional Requirements Matrix** | Table mapping availability, latency, throughput, retention and cost targets to design elements and validation methods. | Done | **Should** |
 | **8** | **Trade-Off Comparison Table** | Two-column table: hybrid real-time versus serverless batch plus cache, assessed on latency, operational effort, cost and risk. Provides design reasoning for stakeholders. | Done | **Should** |
 | **9** | **Flink Job Data Flow (Mini DAG)** | Zoom-in on enrichment pipeline: raw topic → normalise → deduplicate → enrich → upsert NoSQL then emit `cache.invalidate`. Demonstrates rule extensibility and exactly-once semantics. | Done | **Could** |
-| **10** | **Enterprise Capability Realisation View** | Business capabilities → application services → technology blocks. Useful for governance reviews; optional if time is limited. | In progress | **Could** |
+| **10** | **Enterprise Capability Realisation View** | Business capabilities → application services → technology blocks. Useful for governance reviews; optional if time is limited. | Done | **Could** |
