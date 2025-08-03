@@ -6,18 +6,17 @@ graph TD
   Suppliers["Flight Supplier APIs (15+)"] --> Ingest[Ingestion Adapters]
   Ingest --> Kafka[Kafka 
   supplier.raw topic]
-  Kafka --> Flink[Flink
-  Rules and Enrichment]
-  Flink --> NoSQL[NoSQL Persistence]
-  Flink --> CacheTopic[Kafka 
+  Kafka --> Flink[Flink]
+  Flink --> |prices| NoSQL[NoSQL Persistence]
+  Flink -->  CacheTopic[Kafka 
   cache.invalidate topic]
   CacheTopic --> Refresher[Cache Refresher]
-  Refresher --> RedisHot[Redis Hot Cache]
+  Refresher --> RedisHot[Redis]
   RedisPolicy["TTL 60 s
 allkeys-lfu eviction
 ≈ 2 GB RAM"]:::note
-  RedisHot -.-> RedisPolicy
-  Flink --> SearchIdx[Search Index
+  RedisHot -.- RedisPolicy
+  Flink --> |flight details| SearchIdx[Search Index
   ES / OpenSearch]
   Users[Users and Applications] --> API[API Orchestrator]
   API --> SearchIdx
@@ -28,3 +27,13 @@ allkeys-lfu eviction
   classDef dashed stroke-dasharray:4 4
   classDef note fill:#ffffff,stroke:#888,stroke-dasharray:4 4
   class OpsTopic,Lake dashed
+  classDef primary fill:#d6eaf8,color:#000,stroke:#aed6f1;      %% Soft blue for primary processing
+classDef infra fill:#d5f5e3,color:#000,stroke:#82e0aa;        %% Light green for infrastructure
+classDef grey fill:#f4f6f6,color:#000,stroke:#d5d8dc;         %% Light grey for external/support
+classDef note fill:#ffffff,color:#333,stroke:#888,stroke-dasharray:4 4,font-size:12px
+class Suppliers,Ingest,API grey
+class Kafka,Flink,CacheTopic,Refresher,RedisHot,RedisPolicy,NoSQL,SearchIdx infra
+class Users grey
+class Lake,OpsTopic note
+class RedisPolicy note
+

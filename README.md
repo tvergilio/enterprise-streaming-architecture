@@ -31,13 +31,13 @@ The architecture follows a streaming data pattern with the following core compon
 
 1. **Flight Supplier APIs (15+)** → **Ingestion Adapters**: Heterogeneous provider feeds processed through dedicated adapters
 2. **Kafka (`supplier.raw` topic)**: Message backbone for reliable event streaming and decoupling
-3. **Flink Stream Processing**: Real-time transformation, hash-based deduplication, and rules-driven enrichment
+3. **Flink**: Stream processing engine for real-time data transformation and enrichment
 4. **Dual Output Path**:
-   - **NoSQL Persistence**: Durable state storage for processed flight data
-   - **Cache Invalidation Flow**: Kafka `cache.invalidate` topic → Cache Refresher → Redis Hot Cache
-5. **Search Index**: OpenSearch/ElasticSearch for flight indexing and search
+   - **NoSQL Persistence**: Durable storage for pricing data. Authoritative data store with exactly-once semantics.
+   - **Cache Invalidation Flow**: Kafka `cache.invalidate` topic → Cache Refresher → Redis
+5. **Search Index**: OpenSearch/ElasticSearch for flight details indexing and search
 6. **API Orchestrator**: Stateless REST API that queries both search index and Redis cache
-7. **Redis Hot Cache**: High-speed price caching (60s TTL, LFU eviction, ~2GB RAM) with cache-miss fallback to NoSQL
+7. **Redis**: High-speed price caching (60s TTL, LFU eviction, ~2GB RAM) with cache-miss fallback to NoSQL
 8. **Audit Trail**: S3 data lake for long-term retention and disaster recovery (rehydration and replay capabilities)
 
 ## Data Flow Architecture
