@@ -22,7 +22,7 @@ The non-functional requirements directly support OTB's strategic business object
 
 ## Requirements Traceability
 
-All requirements trace back to business drivers and technical constraints identified in the design brief. Each requirement includes validation methods to ensure measurable achievement of quality targets.
+All requirements trace back to business drivers and technical constraints identified in the design brief. Each requirement includes validation methods to ensure measurable achievement of quality targets. Infrastructure specifications and detailed implementation approaches are documented in the [High Availability Plan](HIGH_AVAILABILITY_PLAN.md).
 
 ## Reliability and Performance
 
@@ -32,7 +32,7 @@ All requirements trace back to business drivers and technical constraints identi
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Area</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Target / Constraint</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Source</strong></th>
-<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Design Element(s)</strong></th>
+<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Implementation Reference</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Validation Method(s)</strong></th>
 </tr>
 </thead>
@@ -41,43 +41,43 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Availability</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">≥ 99.9% uptime. Platform must survive AZ loss or pod crashes</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Multi-AZ Kafka, Redis, API pods, OpenSearch; Pilot-light DR region</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Chaos testing (AZ-level and pod-level failures). Verify ALB target health removal within 5 s</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> table and <a href="HIGH_AVAILABILITY_PLAN.md#risk-assessment-and-mitigation">Risk Assessment</a> section</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Chaos testing per <a href="HIGH_AVAILABILITY_PLAN.md#operational-excellence">HA Plan validation procedures</a></td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Durability</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">No data loss on AZ or node failure</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Flink checkpoints to RocksDB, Kafka replication factor = 3 (each partition stored in 3 brokers), DynamoDB multi-AZ</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Simulated AZ loss, checkpoint restore, data consistency checks</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Kafka, Flink, and NoSQL replication strategies</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Simulated AZ loss and data consistency validation per <a href="HIGH_AVAILABILITY_PLAN.md#operational-excellence">HA Plan</a></td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Latency (p95)</strong></td>
-<td style="padding: 8px; border: 1px solid #ddd;">≤ 40 ms end-to-end API search response (brief says "acceptable response times")</td>
+<td style="padding: 8px; border: 1px solid #ddd;">≤ 40 ms end-to-end API search response</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Design Target</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Fast index-query, ID-based Redis price lookup</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Load tests, profiling (latency hotspots), RED metrics (Rate/Errors/Duration)</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - API Runtime Pods and Redis cache configuration</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Load tests, profiling, RED metrics (Rate/Errors/Duration)</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Read Throughput (Search)</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">API must handle ~3,000 QPS at peak traffic</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Horizontally-scaled API pods; optimised OpenSearch queries; multi-level caching</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Load tests simulating 5:1 peak-to-average traffic ratio; monitor p99 latency and error rates under load</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - API Runtime Pods auto-scaling configuration</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Load tests simulating peak traffic patterns per <a href="HIGH_AVAILABILITY_PLAN.md#performance-under-load">HA Plan metrics</a></td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Ingest Throughput (Data)</strong></td>
-<td style="padding: 8px; border: 1px solid #ddd;">Pipeline must process high-volume batch files and continuous streams from 15+ providers without backpressure</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Pipeline must process high-volume streams from 15+ providers without backpressure</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Kafka fan-out, Flink autoscaling, tuned Kafka partitioning to maximise parallelism</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Soak tests for simulated data feeds (long-duration load); monitor Kafka consumer lag and Flink backpressure metrics</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Kafka partitioning and Flink TaskManager scaling</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Soak tests per <a href="HIGH_AVAILABILITY_PLAN.md#performance-under-load">HA Plan</a>; monitor Kafka lag and Flink backpressure</td>
 </tr>
 <tr>
-<td style="padding: 8px; border: 1px solid #ddd;"><strong>DR Recovery</strong></td>
-<td style="padding: 8px; border: 1px solid #ddd;">RPO < 5 s, RTO < 15 min</td>
+<td style="padding: 8px; border: 1px solid #ddd;"><strong>Disaster Recovery</strong></td>
+<td style="padding: 8px; border: 1px solid #ddd;">RPO < 5 s, RTO < 15 min for regional failure</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Design Target</td>
-<td style="padding: 8px; border: 1px solid #ddd;">MirrorMaker 2 (replicates Kafka topics from one cluster to another), pilot-light replica stack, IaC-based region activation</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Fire-drill simulation, validate data freshness post-recovery</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Pilot-light DR region implementation</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Fire-drill simulation per <a href="HIGH_AVAILABILITY_PLAN.md#operational-reviews">HA Plan quarterly testing schedule</a></td>
 </tr>
 </tbody>
 </table>
@@ -92,7 +92,7 @@ All requirements trace back to business drivers and technical constraints identi
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Area</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Target / Constraint</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Source</strong></th>
-<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Design Element(s)</strong></th>
+<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Implementation Reference</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Validation Method(s)</strong></th>
 </tr>
 </thead>
@@ -101,36 +101,36 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Data Quality</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Must detect and reconcile pricing anomalies and conflicting flight information</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Flink deduplication with source ranking (i.e. prioritises high-trust providers during merge to resolve conflicting data deterministically); merge strategy with windowed state and outlier detection (e.g. sudden price drops)</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Flink deduplication with source ranking and outlier detection algorithms</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Simulated conflict injection, anomaly detection metrics, alert thresholds</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reporting and Analytics</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Support for generating business reports on route coverage, availability, and data freshness</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Exporting aggregated data from the pipeline to a data warehouse (e.g., BigQuery, Redshift) for analysis and visualisation</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Generate sample reports and validate data against source systems; check query performance on the data warehouse</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Data Lifecycle and Governance</a> with curated Parquet tables</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Generate sample reports and validate data against source systems</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Index Freshness</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">≤ 1 s delay between ingestion and searchability</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Design Target</td>
-<td style="padding: 8px; border: 1px solid #ddd;">OpenSearch `refresh_interval` controls how often newly indexed documents become visible to search. Setting it to 1s ensures low-latency searchability without excessive overhead</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Search Index refresh_interval configuration</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Track p95 ingestion-to-query delta</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Retention</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Raw events must be archived for ≥ 1 year</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Kafka → S3 (with lifecycle policy)</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Confirm S3 lifecycle config</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Raw Events Lake</a> with S3 lifecycle policies</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Confirm S3 lifecycle config per <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan specifications</a></td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Replayability</strong></td>
-<td style="padding: 8px; border: 1px solid #ddd;">Minimum 3-day replay window for pipeline recovery and reconciliation of late-arriving or out-of-order events</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Minimum 3-day replay window for pipeline recovery</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Design Target</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Kafka topic retention (3–7 days), Flink replay job support</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Run manual replay dry-run, confirm Flink job rehydrates from Kafka/savepoint</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Technical Architecture</a> - Kafka topic retention and Flink savepoint strategy</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Run manual replay dry-run per <a href="HIGH_AVAILABILITY_PLAN.md#operational-reviews">HA Plan procedures</a></td>
 </tr>
 </tbody>
 </table>
@@ -145,7 +145,7 @@ All requirements trace back to business drivers and technical constraints identi
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Area</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Target / Constraint</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Source</strong></th>
-<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Design Element(s)</strong></th>
+<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Implementation Reference</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Validation Method(s)</strong></th>
 </tr>
 </thead>
@@ -154,22 +154,22 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Security</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Must comply with fare display rules and data protection expectations</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">TLS in transit, IAM-scoped access, audit logs for sensitive flows, all data encrypted in transit and at rest, PII awareness in logs and events</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Config reviews, automated scans, audit trail, automated compliance scanning (e.g. AWS Config)</td>
+<td style="padding: 8px; border: 1px solid #ddd;">TLS in transit, IAM-scoped access, audit logs, encryption at rest</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Config reviews, automated scans, compliance scanning</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Maintainability</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">System must support onboarding new supplier feeds quickly</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Adapter abstraction per supplier, connector isolation (reduces blast radius from bad feeds), schema registry (enforces structural consistency)</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Ingestion Adapters</a> with connector isolation and schema registry</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Time-to-integrate new feed; error rate during first sync</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Cost Efficiency</strong></td>
-<td style="padding: 8px; border: 1px solid #ddd;">Minimise cloud spend by dynamically scaling resources and leveraging optimal pricing models</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Minimise cloud spend through dynamic scaling and optimal pricing models</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Autoscaling on all compute layers (API, Flink); use of spot/preemptible instances for tolerant workloads; ARM-based compute (e.g., AWS Graviton); S3 Lifecycle Policies for archival storage</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Track key metrics (e.g., cost-per-search); regular cost analysis via cloud provider tools; automated budget alerts</td>
+<td style="padding: 8px; border: 1px solid #ddd;">See <a href="HIGH_AVAILABILITY_PLAN.md#technical-architecture">HA Plan: Auto-scaling configurations</a> across all compute tiers</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Track cost-per-search metrics; automated budget alerts</td>
 </tr>
 </tbody>
 </table>
@@ -184,7 +184,7 @@ All requirements trace back to business drivers and technical constraints identi
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Area</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Target / Constraint</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Source</strong></th>
-<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Design Element(s)</strong></th>
+<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Implementation Reference</strong></th>
 <th style="padding: 8px; text-align: left; border: 1px solid #ddd;"><strong>Validation Method(s)</strong></th>
 </tr>
 </thead>
@@ -193,14 +193,14 @@ All requirements trace back to business drivers and technical constraints identi
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Search Flexibility and Segmentation¹</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Must support tailored results by brand, locale, and customer segment</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Search-time filtering and boosting using OpenSearch field tags (e.g. brand, locale, loyalty-partner); user segment inferred from token or request context</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Integration tests with personalised search scenarios; audit query templates</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Search-time filtering and boosting using OpenSearch field tags</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Integration tests with personalised search scenarios</td>
 </tr>
 <tr>
 <td style="padding: 8px; border: 1px solid #ddd;"><strong>Dynamic Configuration Support</strong></td>
 <td style="padding: 8px; border: 1px solid #ddd;">Must support pricing variants by brand/segment with minimal code change</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Brief</td>
-<td style="padding: 8px; border: 1px solid #ddd;">Config-driven fare modifiers; dynamic targeting via locale, loyalty, or segment tags</td>
+<td style="padding: 8px; border: 1px solid #ddd;">Config-driven fare modifiers with dynamic targeting capabilities</td>
 <td style="padding: 8px; border: 1px solid #ddd;">Variant tracking dashboards, feature flag logs, rollout monitoring</td>
 </tr>
 </tbody>
