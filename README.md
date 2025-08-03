@@ -124,7 +124,7 @@ TaskManager failures are handled through automatic rescheduling and state recove
 
 ![Enterprise Capability Realisation View](images/enterprise-capability-realisation-view.svg)
 
-This TOGAF-style capability realisation view demonstrates how the flight search platform's technical architecture directly enables core business capabilities. The "Inventory (Data Insight)" business capability is realised through a suite of application services including the Pricing Cache, Search Aggregator, and Data Normaliser, which in turn are implemented using the distributed technology stack of Kafka, Flink, OpenSearch, Redis, and DynamoDB. This layered approach ensures that business objectives are systematically supported by appropriate technology choices whilst maintaining architectural coherence across the enterprise.
+The capability realisation view demonstrates how the flight search platform's technical architecture directly enables core business capabilities. The "Inventory (Data Insight)" business capability is realised through a suite of application services including the Pricing Cache, Search Aggregator, and Data Normaliser, which in turn are implemented using the distributed technology stack of Kafka, Flink, OpenSearch, Redis, and DynamoDB. This layered approach ensures that business objectives are systematically supported by appropriate technology choices whilst maintaining architectural coherence across the enterprise.
 
 ## Architecture Rationale
 
