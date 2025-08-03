@@ -23,7 +23,7 @@ The platform operates as a centralised flight search service, ingesting data fro
 - **Data Quality**: Automated conflict resolution and anomaly detection across provider feeds
 - **Audit Trail**: Complete data lineage and 1-year retention for regulatory compliance
 
-## Architecture Overview
+## Runtime Architecture
 
 ![High-Level Runtime Architecture](images/high-level-runtime.svg)
 
