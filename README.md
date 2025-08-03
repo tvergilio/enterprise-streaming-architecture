@@ -58,9 +58,17 @@ The system uses topic-based decoupling through Kafka to ensure loose coupling be
 Search requests follow an optimised path designed for sub-40ms p95 latency:
 
 1. **Index Query**: OpenSearch for flight matching and ranking
-2. **Price Lookup**: Redis cache for current pricing (70% hit rate target)
+2. **Price Lookup**: Redis cache for current pricing (85% hit rate target)
 3. **Fallback**: NoSQL for cache misses
 4. **Result Assembly**: API layer combines flight details with current pricing
+
+### Performance Note: 
+
+Flight search queries are typically highly skewed: a small number of popular destinations account for a large share of traffic (e.g., Costa del Sol, Barcelona, Amsterdam). If these routes remain cached in Redis, even with an 85% overall hit rate:
+
+* ~95% of all requests can still return in < 40ms, because slow cache-miss responses fall into the long tail (~2–3% of traffic)
+
+* This satisfies the p95 latency SLA, as long as unpopular routes (the slow ones) remain under 5% of total volume. The cache employs LFU eviction to ensure popular routes stay cached.
 
 ## Stream Processing Pipeline
 
