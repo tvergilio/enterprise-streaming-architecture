@@ -31,8 +31,9 @@ graph LR
     (cache.invalidate topic)"]
 
     %% ─── Consumers of flights.enriched ───
-    EnrichedTopic --> NoSQLSink["NoSQL 
-    (Durable State)"]
+    FlinkJob --> NoSQLSink["NoSQL 
+(Durable State)"]
+
     EnrichedTopic --> IndexSink["Search Index Writer"]
 
     %% ─── Consumer of cache.invalidate ───
